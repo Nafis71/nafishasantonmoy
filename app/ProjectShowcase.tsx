@@ -43,6 +43,15 @@ const ProjectShowcase = ({ projects }: { projects: Project[] }) => {
 
   const activeProj = projects[activeIdx];
 
+  const handleDragEnd = (event: any, info: any) => {
+    const swipeThreshold = 50;
+    if (info.offset.x < -swipeThreshold) {
+      handleNext();
+    } else if (info.offset.x > swipeThreshold) {
+      handlePrev();
+    }
+  };
+
   const getVisibleScreenshots = () => {
     const imgs = activeProj.images;
     return [
@@ -71,6 +80,10 @@ const ProjectShowcase = ({ projects }: { projects: Project[] }) => {
               {visibleScreens.map((screen, i) => (
                 <motion.div
                   key={`${activeProj.title}-${screenshotIdx}-${i}`}
+                  drag={i === 1 ? "x" : false}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.1}
+                  onDragEnd={i === 1 ? handleDragEnd : undefined}
                   initial={{ x: 200, opacity: 0, scale: 0.8 }}
                   animate={{ 
                     x: 0, 
@@ -78,8 +91,10 @@ const ProjectShowcase = ({ projects }: { projects: Project[] }) => {
                     scale: i === 1 ? 1 : 0.8,
                     rotate: i === 0 ? -10 : i === 2 ? 10 : 0,
                     zIndex: i === 1 ? 20 : 10,
-                    filter: i === 1 ? "blur(0px)" : "blur(2px)"
+                    filter: i === 1 ? "blur(0px)" : "blur(2px)",
+                    cursor: i === 1 ? "grab" : "default"
                   }}
+                  whileDrag={{ scale: 1.05, cursor: "grabbing" }}
                   exit={{ x: -200, opacity: 0, scale: 0.8 }}
                   transition={{ type: "spring", stiffness: 260, damping: 28 }}
                   className={`relative aspect-[9/19.5] ${
