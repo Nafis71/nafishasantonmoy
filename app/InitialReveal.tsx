@@ -16,7 +16,6 @@ export default function InitialReveal() {
     const overlayEl = revealRef.current;
     const boxEl = boxRef.current;
 
-    // If anything goes wrong, never block the UI forever.
     const forceDismiss = () => {
       if (!overlayEl) return;
       overlayEl.style.opacity = "0";
@@ -42,7 +41,7 @@ export default function InitialReveal() {
 
       // 2. The Reveal Sequence
       tl.to(boxEl, {
-        scale: 250, // Massive scale to ensure even the furthest corners are covered
+        scale: 250, 
         duration: 2.2,
         ease: "expo.inOut",
         delay: 0.5,
@@ -67,7 +66,8 @@ export default function InitialReveal() {
           duration: 2.5,
           ease: "expo.out",
           delay: 1.2,
-          clearProps: "transform",
+          // CRITICAL: Clear props after animation so fixed elements (navbar) stick properly on iOS
+          clearProps: "all", 
         }
       );
     } catch {
@@ -83,14 +83,12 @@ export default function InitialReveal() {
   return (
     <div 
       ref={revealRef}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-background"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-background pointer-events-none"
     >
-      {/* Cinematic wide box: scaled from 150x80 for full coverage */}
       <div 
         ref={boxRef}
         className="w-[150px] h-[80px] bg-accent shadow-[0_0_200px_rgba(32,145,242,0.8)] rounded-sm"
       />
-      
       <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-accent/50 animate-pulse">
           Initializing experience...
