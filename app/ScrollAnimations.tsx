@@ -14,7 +14,6 @@ export default function ScrollAnimations() {
     gsap.registerPlugin(ScrollTrigger);
 
     // 1. Reveal for elements NOT already handled by Framer Motion's FadeInWhenVisible
-    // We target headings and specific content blocks for a premium feel
     const revealElements = document.querySelectorAll("h1, h2, h3, .p-8.rounded-3xl");
     revealElements.forEach((el) => {
       gsap.fromTo(
@@ -35,7 +34,6 @@ export default function ScrollAnimations() {
     });
 
     // 2. Parallax for Content Images (Excluding Hero to keep orbit centered)
-    // Only apply to images within project showcases or about sections
     const parallaxImages = document.querySelectorAll("#projects img, #about img");
     parallaxImages.forEach((img) => {
       gsap.fromTo(
@@ -53,7 +51,7 @@ export default function ScrollAnimations() {
       );
     });
 
-    // 3. Subtle Hero Parallax (Moving the entire visual container together)
+    // 3. Subtle Hero Parallax
     const heroVisual = document.querySelector("section.relative .relative.w-full.max-w-\\[450px\\]");
     if (heroVisual) {
       gsap.to(heroVisual, {
@@ -67,7 +65,7 @@ export default function ScrollAnimations() {
       });
     }
 
-    // 4. Staggered reveal for grid items (Timeline, Contacts, etc.)
+    // 4. Staggered reveal for grid items
     const grids = document.querySelectorAll(".grid > div");
     if (grids.length > 0) {
       ScrollTrigger.batch(grids, {
@@ -87,6 +85,40 @@ export default function ScrollAnimations() {
           );
         },
         once: true,
+      });
+    }
+
+    // 5. Smart Navbar (Hide on Scroll Down, Show on Scroll Up)
+    // Fix: Ensures mobile menu doesn't break alignment by checking header height
+    const nav = document.querySelector("header");
+    if (nav) {
+      ScrollTrigger.create({
+        start: "top top",
+        onUpdate: (self) => {
+          const currentScroll = self.scroll();
+          const isScrollingDown = self.direction === 1;
+          const isMobileMenuOpen = nav.offsetHeight > 100; // Expanded menu is much taller
+
+          if (isScrollingDown && currentScroll > 200 && !isMobileMenuOpen) {
+            gsap.to(nav, { 
+              yPercent: -100, 
+              duration: 0.4, 
+              ease: "power2.inOut",
+              overwrite: true 
+            });
+          } else {
+            gsap.to(nav, { 
+              yPercent: 0, 
+              duration: 0.4, 
+              ease: "power2.out",
+              overwrite: true,
+              onComplete: () => {
+                // Clear transforms when at top to avoid sticky layout shifts
+                if (currentScroll < 10) gsap.set(nav, { clearProps: "yPercent" });
+              }
+            });
+          }
+        },
       });
     }
 
