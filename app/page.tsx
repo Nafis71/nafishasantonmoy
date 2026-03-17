@@ -27,6 +27,80 @@ import projectsData from "../data/projects.json";
 import ChatWidget from "./chat-widget";
 import Link from "next/link";
 
+type CountUpProps = {
+  value: string;
+  durationMs?: number;
+  className?: string;
+};
+
+const CountUp = ({ value, durationMs = 1800, className }: CountUpProps) => {
+  const reduceMotion = useReducedMotion();
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const [started, setStarted] = useState(false);
+  const [display, setDisplay] = useState<string>("0");
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setStarted(true);
+            obs.disconnect();
+            break;
+          }
+        }
+      },
+      { threshold: 0.35, rootMargin: "0px 0px -10% 0px" },
+    );
+
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!started) return;
+    if (reduceMotion) {
+      setDisplay(value);
+      return;
+    }
+
+    const match = value.trim().match(/^([+-]?\d*\.?\d+)(.*)$/);
+    if (!match) {
+      setDisplay(value);
+      return;
+    }
+
+    const target = Number(match[1]);
+    const suffix = match[2] ?? "";
+    const decimals = (match[1].split(".")[1] ?? "").length;
+
+    const startAt = performance.now();
+    let raf = 0;
+
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - startAt) / durationMs);
+      const eased = 1 - Math.pow(1 - t, 4); // easeOutQuart
+      const current = target * eased;
+      const formatted =
+        decimals > 0 ? current.toFixed(decimals) : Math.round(current).toString();
+      setDisplay(`${formatted}${suffix}`);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [durationMs, reduceMotion, started, value]);
+
+  return (
+    <span ref={ref} className={className} aria-label={value}>
+      {started ? display : "0"}
+    </span>
+  );
+};
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -115,11 +189,11 @@ const Navbar = () => {
         isVisible ? "translate-y-0" : "-translate-y-full",
       ].join(" ")}
     >
-      <nav className="flex items-center justify-between px-6 py-2 max-w-7xl mx-auto w-full">
+      <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full">
         <a
           href="#"
         >
-          <Image src="/tonmoy.png" alt="Tonmoy" width={100} height={100} className="w-14 h-14 object-cover  border-2 border-accent rounded-full ring-6  ring-accent/20" />
+          <Image src="/tonmoy.png" alt="Tonmoy" width={100} height={100} className="w-12 h-12 object-cover  border-2 border-accent rounded-full ring-6  ring-accent/20" />
           {/* <span className="bg-accent px-2 py-0.5 rounded">Tonmoy.</span> */}
         </a>
 
@@ -280,7 +354,7 @@ const About = () => (
 
         <div className="relative">
           <div className="text-4xl md:text-5xl font-black mb-2 text-accent tracking-tighter italic">
-            2+
+            <CountUp value="2+" />
           </div>
           <div className="text-[10px] md:text-xs text-text-gray uppercase font-black tracking-[0.2em] leading-tight">
             Years
@@ -291,7 +365,7 @@ const About = () => (
 
         <div className="relative">
           <div className="text-4xl md:text-5xl font-black mb-2 text-accent tracking-tighter italic">
-            4+
+            <CountUp value="4+" />
           </div>
           <div className="text-[10px] md:text-xs text-text-gray uppercase font-black tracking-[0.2em] leading-tight">
             Production
@@ -302,7 +376,7 @@ const About = () => (
 
         <div className="relative">
           <div className="text-4xl md:text-5xl font-black mb-2 text-accent tracking-tighter italic">
-            40%
+            <CountUp value="40%" />
           </div>
           <div className="text-[10px] md:text-xs text-text-gray uppercase font-black tracking-[0.2em] leading-tight">
             Performance
@@ -313,7 +387,7 @@ const About = () => (
 
         <div className="relative">
           <div className="text-4xl md:text-5xl font-black mb-2 text-accent tracking-tighter italic">
-            99.9%
+            <CountUp value="99.9%" />
           </div>
           <div className="text-[10px] md:text-xs text-text-gray uppercase font-black tracking-[0.2em] leading-tight">
             Crash-Free
@@ -331,7 +405,7 @@ const Timeline = () => {
     {
       company: "SaraTech Ltd.",
       role: "Flutter Developer (Mid-Level)",
-      period: "Oct 2025 – Present",
+      period: "Oct 2025 - Present",
       website: "https://saratech.com.bd",
       description:
         "Led development of cross-platform Flutter apps for Android and iOS, implementing advanced features and integrating REST APIs, Firebase, and third-party services. Optimized performance for 100% crash-free stability and maintained scalable codebases.",
@@ -339,7 +413,7 @@ const Timeline = () => {
     {
       company: "SaraTech Ltd.",
       role: "Junior Flutter Developer",
-      period: "Mar 2024 – Oct 2025",
+      period: "Mar 2024 - Oct 2025",
       website: "https://saratech.com.bd",
       description:
         "Assisted in developing cross-platform apps, implementing core features and integrating REST APIs. Converted Figma designs into pixel-perfect UI and collaborated with the team to deliver features on schedule.",
@@ -350,14 +424,14 @@ const Timeline = () => {
     {
       institution: "Bangladesh University of Business and Technology",
       degree: "BSc in Computer Science & Engineering",
-      period: "Jan 2020 – Mar 2024",
+      period: "Jan 2020 - Mar 2024",
       location: "Dhaka, Bangladesh",
       website: "https://www.bubt.edu.bd/",
     },
     {
       institution: "Ostad",
       degree: "App Development with Flutter",
-      period: "Mar 2023 – Sep 2023",
+      period: "Mar 2023 - Sep 2023",
       location: "Coursework",
       website: "https://ostad.app/",
     },
@@ -595,7 +669,7 @@ export default function Home() {
       <footer className="py-16 md:py-24 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
           <div className="text-xl font-bold tracking-tight text-white">
-            <span className="bg-accent px-2 rounded">Tonmoy.</span>
+            <Image src="/tonmoy.png" alt="Tonmoy" width={100} height={100} className="w-16 h-16 object-cover  border-2 border-accent rounded-full ring-6  ring-accent/20" />
           </div>
 
           <div className="flex flex-wrap justify-center gap-6 md:gap-8 text-[10px] font-bold uppercase tracking-[0.3em] text-text-gray">
