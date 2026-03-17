@@ -13,15 +13,18 @@ interface Project {
 const ProjectShowcase = ({ projects }: { projects: Project[] }) => {
   const [activeIdx, setActiveIdx] = useState(0);
   const [screenshotIdx, setScreenshotIdx] = useState(0);
+  const [direction, setDirection] = useState(0); // 1 for next, -1 for prev
 
   useEffect(() => {
     const interval = setInterval(() => {
+      setDirection(1);
       handleNext();
     }, 4000);
     return () => clearInterval(interval);
   }, [activeIdx, screenshotIdx, projects.length]);
 
   const handleNext = () => {
+    setDirection(1);
     const currentProj = projects[activeIdx];
     if (screenshotIdx < currentProj.images.length - 1) {
       setScreenshotIdx((prev) => prev + 1);
@@ -32,6 +35,7 @@ const ProjectShowcase = ({ projects }: { projects: Project[] }) => {
   };
 
   const handlePrev = () => {
+    setDirection(-1);
     if (screenshotIdx > 0) {
       setScreenshotIdx((prev) => prev - 1);
     } else {
@@ -84,7 +88,7 @@ const ProjectShowcase = ({ projects }: { projects: Project[] }) => {
                   dragConstraints={{ left: 0, right: 0 }}
                   dragElastic={0.1}
                   onDragEnd={i === 1 ? handleDragEnd : undefined}
-                  initial={{ x: 200, opacity: 0, scale: 0.8 }}
+                  initial={{ x: direction * 200, opacity: 0, scale: 0.8 }}
                   animate={{ 
                     x: 0, 
                     opacity: i === 1 ? 1 : 0.35, 
@@ -95,7 +99,7 @@ const ProjectShowcase = ({ projects }: { projects: Project[] }) => {
                     cursor: i === 1 ? "grab" : "default"
                   }}
                   whileDrag={{ scale: 1.05, cursor: "grabbing" }}
-                  exit={{ x: -200, opacity: 0, scale: 0.8 }}
+                  exit={{ x: direction * -200, opacity: 0, scale: 0.8 }}
                   transition={{ type: "spring", stiffness: 260, damping: 28 }}
                   className={`relative aspect-[9/19.5] ${
                     i === 1 ? 'w-[200px] sm:w-[260px] md:w-[320px]' : 'w-[160px] md:w-[260px] hidden md:block'
