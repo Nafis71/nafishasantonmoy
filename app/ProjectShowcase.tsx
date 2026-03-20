@@ -68,17 +68,17 @@ const ProjectShowcase = ({ projects }: { projects: Project[] }) => {
   const visibleScreens = getVisibleScreenshots();
 
   return (
-    <section id="projects" className="py-16 md:py-24 px-6 max-w-7xl mx-auto overflow-hidden border-b border-white/5">
-      <div className="text-center mb-12 md:mb-16">
+    <section id="projects" className="py-12 md:py-16 px-6 max-w-7xl mx-auto overflow-hidden border-b border-white/5">
+      <div className="text-center mb-8 md:mb-12">
         <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter mb-4 text-white uppercase">
           <span className="bg-accent px-3 md:px-4 py-1 rounded text-white not-italic">Selected</span> Projects
         </h2>
-        <div className="w-1 h-12 md:h-16 bg-accent mx-auto mt-4 rounded-full opacity-40 animate-pulse" />
+        <div className="w-1 h-8 md:h-12 bg-accent mx-auto mt-4 rounded-full opacity-40 animate-pulse" />
       </div>
 
-      <div className="relative flex flex-col items-center gap-12 md:gap-16">
+      <div className="relative flex flex-col items-center gap-8 md:gap-12">
         {/* Project Carousel */}
-        <div className="relative w-full flex items-center justify-center min-h-[400px] sm:min-h-[500px] md:min-h-[650px]">
+        <div className="relative w-full flex items-center justify-center min-h-[300px] sm:min-h-[400px] md:min-h-[550px]">
           <div className="flex items-center justify-center gap-4 md:gap-12 w-full">
             <AnimatePresence mode="popLayout" initial={false}>
               {visibleScreens.map((screen, i) => (
@@ -88,18 +88,18 @@ const ProjectShowcase = ({ projects }: { projects: Project[] }) => {
                   dragConstraints={{ left: 0, right: 0 }}
                   dragElastic={0.1}
                   onDragEnd={i === 1 ? handleDragEnd : undefined}
-                  initial={{ x: direction * 200, opacity: 0, scale: 0.8 }}
+                  initial={{ x: direction * 200, opacity: 0, scale: 0.7 }}
                   animate={{ 
                     x: 0, 
                     opacity: i === 1 ? 1 : 0.35, 
-                    scale: i === 1 ? 1 : 0.8,
+                    scale: i === 1 ? 0.9 : 0.7,
                     rotate: i === 0 ? -10 : i === 2 ? 10 : 0,
                     zIndex: i === 1 ? 20 : 10,
                     filter: i === 1 ? "blur(0px)" : "blur(2px)",
                     cursor: i === 1 ? "grab" : "default"
                   }}
-                  whileDrag={{ scale: 1.05, cursor: "grabbing" }}
-                  exit={{ x: direction * -200, opacity: 0, scale: 0.8 }}
+                  whileDrag={{ scale: 0.95, cursor: "grabbing" }}
+                  exit={{ x: direction * -200, opacity: 0, scale: 0.7 }}
                   transition={{ type: "spring", stiffness: 260, damping: 28 }}
                   className={`relative aspect-[9/19.5] ${
                     i === 1 ? 'w-[200px] sm:w-[260px] md:w-[320px]' : 'w-[160px] md:w-[260px] hidden md:block'
